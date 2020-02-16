@@ -20,6 +20,18 @@ namespace Final_Project_Code_First.Models.Search
             query["key"] = apiKey;
 
         }
+
+        public List<Book> QuickSearchByName(string name)
+        {
+            var message = client.GetAsync("books/v1/volumes?" + query.ToString()).Result;
+            if (message.IsSuccessStatusCode)
+            {
+                GoogleResponse response = message.Content.ReadAsAsync<GoogleResponse>().Result;
+                return MapperForSearch.MapGoogleResponse(response);
+            }
+            throw new NotImplementedException();
+        }
+
         public List<Book> SearchByName(string name)
         {
             query["q"] = name;
@@ -31,14 +43,7 @@ namespace Final_Project_Code_First.Models.Search
             }
             return null;
         }
-        public HttpResponseMessage s (string name)
-        {
-            HttpClient client = new HttpClient();
-            client.BaseAddress = new Uri("https://www.googleapis.com/");
-            var query = HttpUtility.ParseQueryString(string.Empty);
-            query["q"] = name;
-            query["key"] = apiKey;
-            return client.GetAsync("books/v1/volumes?" + query.ToString()).Result;
-        }
+
+
     }
 }

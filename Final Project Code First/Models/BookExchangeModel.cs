@@ -19,8 +19,16 @@ namespace Final_Project_Code_First.Models
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<Book>().Property(book => book.Rate).HasPrecision(5, 3);
-            modelBuilder.Entity<User>().Property(user => user.Rate).HasPrecision(5, 3);
+            modelBuilder.Entity<Book>()
+                .Property(book => book.Rate)
+                .HasPrecision(5, 3);
+            modelBuilder.Entity<User>()
+                .Property(user => user.Rate)
+                .HasPrecision(5, 3);
+            modelBuilder.Entity<User>()
+                .HasMany(w => w.UserWantBooks)
+                .WithMany(b => b.UserWantBooks)
+                .Map(ub => ub.ToTable("User_Want_Book"));
 
         }
         public DbSet<Book> Books { get; set; }

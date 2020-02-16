@@ -9,5 +9,6 @@ namespace Final_Project_Code_First.Models.Search
     interface ISearch
     {
         List<Book> SearchByName(string name);
+        List<Book> QuickSearchByName(string name);
     }
 }

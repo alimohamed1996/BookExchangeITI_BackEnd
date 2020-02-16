@@ -180,6 +180,10 @@
     <Compile Include="Migrations\202002130853174_EditPhoneNumber.designer.cs">
       <DependentUpon>202002130853174_EditPhoneNumber.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202002150702205_fixed relation user want book.cs" />
+    <Compile Include="Migrations\202002150702205_fixed relation user want book.designer.cs">
+      <DependentUpon>202002150702205_fixed relation user want book.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Book.cs" />
     <Compile Include="Models\BookCondition.cs" />
@@ -285,6 +289,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202002130853174_EditPhoneNumber.resx">
       <DependentUpon>202002130853174_EditPhoneNumber.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202002150702205_fixed relation user want book.resx">
+      <DependentUpon>202002150702205_fixed relation user want book.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
