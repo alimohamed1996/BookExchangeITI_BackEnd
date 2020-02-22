@@ -8,12 +8,14 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.Security.Claims;
 using Final_Project_Code_First.Models;
+using Final_Project_Code_First.Controllers;
 
 namespace Users.Controllers
 {
 
-    [Authorize(Roles ="Adminstrator")]
+    //[Authorize(Roles ="Admin")]
     public class UserController : ApiController
     {
         private BookExchangeModel db = new BookExchangeModel();
@@ -22,11 +24,9 @@ namespace Users.Controllers
         [ResponseType(typeof(User))]
         [HttpGet]
         [Route("api/User/page/{pageNumber:int}")]
-        public IHttpActionResult GetAllByPageNo(int pageNumber)
-        {
-            int pageSize = 20;
+        public IHttpActionResult GetAllByPageNo(int pageNumber, int pageSize)
+        {     
             var user = db.Users.OrderBy(ww => ww.UserId).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList().Select(ww => new { ww.FirstName, ww.LastName, ww.Address, ww.Rate });
-          
             return Ok(user);
         }
         // GETById
@@ -51,7 +51,6 @@ namespace Users.Controllers
         //GETByname
         [Route("api/User/{name:alpha}")]
         [ResponseType(typeof(User))]
-
         public IHttpActionResult GetUserByName(string name, string type)
         {
             var query = db.Users.Where(ww => (ww.FirstName + ww.LastName).Contains(name)).ToList();
@@ -71,16 +70,19 @@ namespace Users.Controllers
 
         // PUT: api/User/5
         [ResponseType(typeof(void))]
-        public IHttpActionResult PutUser(int id, User user)
+        [Authorize]
+        
+        public IHttpActionResult PutUser( User user)
         {
+            var currentId = UserUtilities.GetCurrentUserId(User);
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (id != user.UserId)
+            if (currentId != user.UserId)
             {
-                return BadRequest();
+                return Unauthorized();
             }
 
             db.Entry(user).State = System.Data.Entity.EntityState.Modified;
@@ -91,7 +93,7 @@ namespace Users.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UserExists(id))
+                if (!UserExists(currentId))
                 {
                     return NotFound();
                 }
@@ -137,26 +139,30 @@ namespace Users.Controllers
         [Route("api/user/want/{id:int}")]
         public IHttpActionResult GetWantedBooks(int id)
         {
-            var user = db.Users.Where(ww => ww.UserId == id ).Select(ww => new { ww.FirstName, ww.LastName, ww.UserWantBooks}).ToList();
-            if (user.Count == 0)
-            {
-                return NotFound();
-            }
-            return Ok(user);
+            //var user = db.Users.Where(ww => ww.UserId == id ).Select(ww => new { ww.FirstName, ww.LastName, ww.UserWantBooks}).ToList();
+            var books = db.UserWantBooks.Where(ww => ww.UserId == id).OrderByDescending(ww => ww.DateBookAdded).Select(ww => ww.Book).ToList();
+            //if (user.Count == 0)
+            //{
+            //    return NotFound();
+            //}
+            return Ok(books);
         }
         [ResponseType(typeof(User))]
         [HttpGet]
         [Route("api/user/having/{id:int}")]
-        public IHttpActionResult GetHavingBooks(int id)
+        public IHttpActionResult GetHavingBooks(int id, int PageNumber, int pagSize)
         {
             //var user = db.User_Book.Where(ww => ww.User_Id == id && ww.Want == false).Select(ww => new { ww.User.First_Name, ww.User.Last_Name, ww.Book.Title }).ToList();
-            var user = db.Users.Where(ww => ww.UserId == id).Select(ww => new { ww.FirstName, ww.LastName, ww.UserHaveBooks }).ToList();
-
-            if (user.Count == 0)
-            {
-                return NotFound();
-            }
-            return Ok(user);
+            //var user = db.Users.Where(ww => ww.UserId == id).Select(ww => new { ww.FirstName, ww.LastName, ww.UserHaveBooks }).ToList();
+            //var books = db.Users.Include("Book").Where(user => user.UserId == id).Select(user => user.UserHaveBooks);
+            
+            var books = db.UserHaveBooks.Include("Book").Where(user => user.UserId == id).Select(uhb=> uhb.Book).ToList();
+            //if (user.Count == 0)
+            //{
+            //    return NotFound();
+            //}
+            
+            return Ok(books);
         }
         private bool UserExists(int id)
         {
